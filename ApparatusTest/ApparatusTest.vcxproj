@@ -107,6 +107,7 @@
     <ClInclude Include="ApparatusTestView.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CBMPLoader.h" />
+    <ClInclude Include="GLFont.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SkyBox.h" />
@@ -124,6 +125,7 @@
     <ClCompile Include="ApparatusTestView.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CBMPLoader.cpp" />
+    <ClCompile Include="GLFont.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="stdafx.cpp">

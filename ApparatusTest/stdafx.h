@@ -40,6 +40,18 @@
 #include<gl\GLUT.H>
 #include<gl\GLAUX.H>
 #include<gl\GLEXT.H>
+#include "vectorlib.h"
+
+#pragma comment( lib,"winmm.lib" )
+#pragma comment( lib,"glaux.lib" )
+
+#define MAP_W       32       // size of map along x-axis 32 
+#define MAP_SCALE   24.0f     // the scale of the terrain map
+#define MAP			MAP_W*MAP_SCALE/2
+#define KEY_DOWN(vk_code)((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
+#define RAND_COORD(x)   ((float)rand()/RAND_MAX * (x))
+#define FRAND   (((float)rand()-(float)rand())/RAND_MAX)
+#define TREESL 300
 
 const unsigned int MAP_WIDTH = 1024;
 const unsigned int CELL_WIDTH = 16;

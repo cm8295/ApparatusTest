@@ -11,6 +11,7 @@
 
 #include "ApparatusTestDoc.h"
 #include "ApparatusTestView.h"
+#include "bitmap.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -18,6 +19,7 @@
 
 bool temp = false;         //temp = true:       启动手动漫游    初始化为关闭
 bool tempTimer = false;    //tempTimer = true:  启动自动漫游    初始化为关闭
+CString test;
 // CApparatusTestView
 
 IMPLEMENT_DYNCREATE(CApparatusTestView, CView)
@@ -42,11 +44,38 @@ END_MESSAGE_MAP()
 CApparatusTestView::CApparatusTestView()
 {
 	// TODO: 在此处添加构造代码
-	
+	//字体
+	hFont  =CreateFont(-12,0,0,0,400,0,0,0,GB2312_CHARSET,0,0,0,FF_MODERN,"宋体");
+	hFont0 =CreateFont(-18,0,0,0,800,0,0,0,GB2312_CHARSET,0,0,0,FF_MODERN,"华文行楷");
+	hFont1 =CreateFont(-36,0,0,0,800,0,0,0,GB2312_CHARSET,0,0,0,FF_MODERN,"黑体");
+	m_Fram=0;//
+	m_Time = GetTickCount();				//click()
+	tim=0;                              //刷屏速度
+	Font=new CGLFont() ;
+	//
+	//初始化纹理
+	LoadT16("dataCACTUS0.BMP",g_cactus[0]);
+	LoadT16("dataCACTUS1.BMP",g_cactus[1]);
+	LoadT16("dataCACTUS2.BMP",g_cactus[2]);
+	LoadT16("dataCACTUS3.BMP",g_cactus[3]);
+	srand(100);                        //随机数生成
+	for(int i = 0;i<TREESL;i++)
+	{
+		objposi[i].x= RAND_COORD((MAP_W-1)*MAP_SCALE);
+	    objposi[i].z= RAND_COORD((MAP_W-1)*MAP_SCALE);	
+	    objposi[i].size=5.0f+rand()%5;	
+	    objposi[i].h=-objposi[i].size/10;
+	    objposi[i].cactus=rand()%4+11;	
+	}
+	glEnable(GL_TEXTURE_2D);
 }
 
 CApparatusTestView::~CApparatusTestView()
 {
+	for(int i=0;i<18;i++)
+		glDeleteTextures(1, &g_cactus[i]);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 BOOL CApparatusTestView::PreCreateWindow(CREATESTRUCT& cs)
@@ -239,7 +268,15 @@ void CApparatusTestView::RenderScene(void)
 
 	// 显示3DS模型 
 	Show3DS(260,583,20);
-		
+
+	//
+	srand(100);
+	for(int i = 0;i<TREESL;i++)
+	{
+		ShowTree(i);
+		settml(i);
+	}
+    CreateFontFun();
 	glFlush();	              
 	
 }
@@ -344,6 +381,8 @@ void CApparatusTestView::OnTimer(UINT_PTR nIDEvent)
 	m_Camera.setCamera(vNewPos.x,  vNewPos.y,  vNewPos.z,
 						   vView.x,	   vView.y,	   vView.z,	 
 						   0, 1, 0);	
+	//text();
+	
 	//test
 	/*CDC * pDC = this->GetDC();	
 	CString str;	
@@ -416,3 +455,147 @@ void CApparatusTestView::On32775()
 	dlg->Create(MAKEINTRESOURCE(IDD_DIALOG1));
 	dlg->ShowWindow(1);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////
+///////    一下函数         ///////////////////////////////////
+///////////////////////////////////////////////////
+//字体设置   未用
+void CApparatusTestView::text()
+{
+	
+	DWORD Dura = (GetTickCount() - m_Time)/1000;
+	//DWORD Dura = (timeGetTime() - m_Time)/1000;
+	if(Dura>0) tim = m_Fram/Dura;
+	m_Fram++;
+	char str[128];
+	strcpy(str,"漫游系统");
+	Font->settext(0.0f,20.0f,str,hFont0,1,1,0.0f);
+
+	sprintf(str,"刷屏：%2d 帧/秒 %s",tim,test);
+	Font->settext(400,550,str,hFont,1,1,1.0f);
+	Font->settext(420,260,"+",hFont,1,0,0);
+}
+
+//创建字体
+
+void CApparatusTestView::CreateFontFun()
+{
+	CWindowDC dc(NULL);
+CFont myFont;
+	myFont.CreateFont (   
+120, // nHeight 字体高度  
+40, // nWidth 字体宽度  
+0, // nEscapement 显示角度  
+0, // nOrientation 字体角度  
+FW_NORMAL, // nWeight 字体磅值  
+FALSE, // bItalic 是否倾斜  
+FALSE, // bUnderline 是否斜体  
+0, // cStrikeOut 是否加删除线  
+ANSI_CHARSET, // nCharSet 指定字符集  
+OUT_DEFAULT_PRECIS, // nOutPrecision 指定输出精度  
+CLIP_DEFAULT_PRECIS, // nClipPrecision 指定剪切精度  
+DEFAULT_QUALITY, // nQuality 指定输出质量  
+DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily 字符族  
+"Arial"); // 指定字体的字样名  
+ //CFont* oldFont = dc.SelectObject ( &myFont);  
+    dc.SetTextColor (RGB (0,0,255));  
+//dc.SetBkMode (TRANSPARENT); //背景模式为透明  
+//
+    DWORD Dura = (GetTickCount() - m_Time)/1000;	
+	if(Dura>0) tim = m_Fram/Dura;
+	m_Fram++;
+	char str[128];	
+	sprintf(str,"刷屏：%2d 帧/秒 %s",tim,test);
+//
+	dc.TextOut(50,50,str);  
+//dc.SelectObject ( oldFont);  
+}
+
+/*************************************  BEGIN  LoadBitmapFile  **********************************************************/
+//加载位图
+void CApparatusTestView::LoadT16(char *filename, GLuint &texture)
+{
+  glGenTextures(1, &texture);  
+  glBindTexture(GL_TEXTURE_2D, texture);
+  BITMAPINFOHEADER bitHeader;
+  unsigned char *buffer;  
+  buffer=LoadBitmapFileWithAlpha(filename,&bitHeader);
+  gluBuild2DMipmaps	( GL_TEXTURE_2D,  
+					  4,    
+					  bitHeader.biWidth, 
+					  bitHeader.biHeight,
+					  GL_RGBA, 
+					  GL_UNSIGNED_BYTE,
+					  buffer  
+					); 
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR); 
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+  free(buffer);  
+}
+/***************************************END LoadBitmapFile********************************************************/
+
+/*******************************ShowTree begin************************/
+void CApparatusTestView::ShowTree(int i)
+{
+	glEnable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0);
+    float mat[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, mat);
+    vector3_t X(mat[0], mat[4], mat[8]);
+    vector3_t Z(mat[1], mat[5], mat[9]); 
+    glBindTexture(GL_TEXTURE_2D, g_cactus[objposi[i].cactus]);
+    vector3_t pos(objposi[i].x,0.0,-objposi[i].z);
+    float size=objposi[i].size;
+    pos.y = GetHeight(objposi[i].x, -objposi[i].z) + objposi[i].h + size;
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0,0.0);glVertex3fv((pos+(X+Z)*-size).v);//左下点
+	glTexCoord2f(1.0,0.0);glVertex3fv((pos+(X-Z)* size).v);//右下点
+	glTexCoord2f(1.0,1.0);glVertex3fv((pos+(X+Z)* size).v);//右上点
+	glTexCoord2f(0.0,1.0);glVertex3fv((pos+(Z-X)* size).v);//左上点
+    glEnd();
+    glDisable(GL_ALPHA);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
+}
+
+float CApparatusTestView::GetHeight(float x, float z)
+{ 	float CameraX = x/MAP_SCALE;
+	float CameraZ =-z/MAP_SCALE;  
+	int Col0 = int(CameraX);  
+	int Row0 = int(CameraZ);
+	int Col1 = Col0 + 1;
+	int Row1 = Row0 + 1; 
+	if (Col1 > MAP_W)	Col1 = 0;
+	if (Row1 > MAP_W)	Row1 = 0;
+	float h00=g_terrain[Col0 + Row0*MAP_W][1];
+	float h01=g_terrain[Col1 + Row0*MAP_W][1];
+	float h11=g_terrain[Col1 + Row1*MAP_W][1];
+	float h10=g_terrain[Col0 + Row1*MAP_W][1];
+	float tx =CameraX - int(CameraX);
+	float ty =CameraZ - int(CameraZ);
+	float txty = tx * ty;
+	return h00*(1.0f-ty-tx+txty) 
+			+ h01*(tx-txty)
+			+ h11*txty
+			+ h10*(ty-txty); 
+}
+
+void CApparatusTestView::settml(int p)
+{
+	float y = GetHeight(objposi[p].x, -objposi[p].z) + 1;
+	glPushAttrib(GL_CURRENT_BIT);
+	glDisable(GL_TEXTURE_2D);
+	glPushMatrix();
+	glTranslatef(objposi[p].x,y,-objposi[p].z);
+	auxWireBox(objposi[p].size,objposi[p].size,objposi[p].size);
+	glPopMatrix();
+	glEnable(GL_TEXTURE_2D);
+	glPopAttrib();	
+}
+/*******************************ShowTree end************************/
