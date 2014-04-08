@@ -9,15 +9,8 @@
 #include "Terrain.h"
 #include "3DSLoader.h"
 #include "Vector.h"
-#include "GLFont.h"
 
 
-struct OBJPOSI
- {	float x,z;
-	float h;
-	float size;	
-	int   cactus;
- };
 
 class CApparatusTestView : public CView
 {
@@ -49,17 +42,20 @@ public:
 protected:
 	HGLRC		m_hRC;			//OpenGL绘制描述表
 	CDC*	    m_pDC;			//OpenGL设备描述表
+	HDC         m_hDc;
 	C3DSLoader m_3DS;                         // 3DS文件载入类 
 	CTerrain   m_Terrain;                     // 地形类 
 	CSkyBox    m_SkyBox;                      // 天空类 
 	Camera     m_Camera;                      // 摄像机类      
   	float      m_Fps;                         // 帧速 
+
 	Vector3    dirvec;
 	UINT       g_cactus[5];                   //装载纹理
-	OBJPOSI    objposi[TREESL];
 	float      g_terrain  [MAP_W * MAP_W][3];
-	//bool       temp;                      //手动或者自动
+	GLuint		g_index		[MAP_W*MAP_W* 2];
 	
+	DWORD m_StartTime, m_ElapsedTime, m_previousElapsedTime;
+	CString m_WindowTitle;    //Window Title
 // 生成的消息映射函数
 protected:
 	afx_msg void OnFilePrintPreview();
@@ -78,19 +74,14 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	//字体
-	CGLFont *Font;
 	int m_Time,m_Fram,tim;
-	HFONT hFont,hFont0,hFont1;    //字体
-	void text();   //显示文字
-	void tree();
-	void CreateFontFun();
+	//显示帧速
+	void CreateFontFun();       //  没用
+	void PostRenderScene();     //2
+	int FramesPerSecond();
+	DWORD ElapsedTimeinMSSinceLastStartup();
+	DWORD ElapsedTimeinMSSinceLastRender();
 	//
-	//碰撞检测
-	void LoadT16(char *filename, GLuint &texture);  //加载树位图
-	void ShowTree(int i);                            //展示树
-	float GetHeight(float x,float z);                //获得高度
-	void settml(int p);  
-	void CollisionDetection(float x,float z);       //碰撞检测函数
 
 	//
 	afx_msg void On32771();

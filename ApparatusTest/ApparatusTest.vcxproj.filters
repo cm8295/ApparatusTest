@@ -54,16 +54,10 @@
     <ClInclude Include="Terrain.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Utility.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="UtilityFunc.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Vector.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GLFont.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -99,9 +93,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Vector.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="GLFont.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
